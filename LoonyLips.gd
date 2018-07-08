@@ -5,27 +5,32 @@ var prompts = [ "your name", "a place", "a living thing", "a color", "a food", "
 # Words that player enters to match the prompts 
 var words = []
 # Story that words will be inserted into
-var story = "%s's story.\n\nI went to %s with a %s. We ate %s %s and I wore a %s on my %s."
+var story = "%s's story:\n\nI went to %s with a %s. We ate %s %s and I wore a %s on my %s."
 # Introduction text
 var introduction = "Welcome to Loony Lips!\nPlease enter your name to start."
 	
 func _ready():
 	$Blackboard/TextBox.clear()
 	$Blackboard/TextBox.grab_focus()
-	prompt_player()
+	handle_display()
 
-func prompt_player():
-	var text
+func handle_display():
 	if words.size() == 0:
-		# Intro and prompt for first word
-		text = introduction
+		show_introduction()
 	elif words.size() < prompts.size():
-		# Prompt for next word
-		text = "Please enter " + prompts[words.size()]
+		prompt_player();
 	else:
-		# Display completed story
-		text = story % words
-	$Blackboard/StoryText.text = text
+		tell_story()
+
+func show_introduction():
+	# Introduction includes first prompt
+	$Blackboard/StoryText.text = introduction
+	
+func prompt_player():
+	$Blackboard/StoryText.text = "Please enter " + prompts[words.size()]
+	
+func tell_story():
+	$Blackboard/StoryText.text = story % words
 
 func _on_OKButton_pressed():
 	var new_text = $Blackboard/TextBox.text
@@ -35,4 +40,4 @@ func _on_TextBox_text_entered(new_text):
 	$Blackboard/TextBox.clear()
 	if words.size() < prompts.size():
 		words.append(new_text)
-		prompt_player()
+		handle_display()
