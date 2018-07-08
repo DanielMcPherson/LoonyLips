@@ -11,16 +11,32 @@ var introduction = "Welcome to Loony Lips!\nPlease enter your name to start."
 	
 func _ready():
 	$Blackboard/TextBox.clear()
+	$Blackboard/OKButton/RichTextLabel.text = "OK!"
 	$Blackboard/TextBox.grab_focus()
 	handle_display()
 
+func _on_OKButton_pressed():
+	if is_story_done():
+		get_tree().reload_current_scene()
+	else:
+		var new_text = $Blackboard/TextBox.text
+		_on_TextBox_text_entered(new_text)
+
+func _on_TextBox_text_entered(new_text):
+	$Blackboard/TextBox.clear()
+	words.append(new_text)
+	handle_display()
+
+func is_story_done():
+	return words.size() >= prompts.size()
+	
 func handle_display():
 	if words.size() == 0:
 		show_introduction()
-	elif words.size() < prompts.size():
-		prompt_player();
-	else:
+	elif is_story_done():
 		tell_story()
+	else:
+		prompt_player();
 
 func show_introduction():
 	# Introduction includes first prompt
@@ -31,13 +47,9 @@ func prompt_player():
 	
 func tell_story():
 	$Blackboard/StoryText.text = story % words
-
-func _on_OKButton_pressed():
-	var new_text = $Blackboard/TextBox.text
-	_on_TextBox_text_entered(new_text)
-
-func _on_TextBox_text_entered(new_text):
-	$Blackboard/TextBox.clear()
-	if words.size() < prompts.size():
-		words.append(new_text)
-		handle_display()
+	end_game()
+	
+func end_game():
+	#$Blackboard/TextBox.visible = false
+	$Blackboard/TextBox.queue_free()
+	$Blackboard/OKButton/RichTextLabel.text = "Again!"
